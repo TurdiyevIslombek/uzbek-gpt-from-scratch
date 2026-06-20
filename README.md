@@ -7,6 +7,24 @@ A ~103M-parameter, decoder-only GPT-style language model **pretrained from scrat
 
 This repository is the **code**: the architecture, the data pipeline, the training loop, and a generation script. It is meant to be readable end to end.
 
+## Try it (no training, no GPU)
+
+The trained weights are published on Hugging Face. To generate Uzbek text from them you only need this repo's code plus the weights file:
+
+```bash
+git clone https://github.com/TurdiyevIslombek/uzbek-gpt-from-scratch.git
+cd uzbek-gpt-from-scratch
+pip install -r requirements.txt
+
+# download the trained weights (~425 MB) from the Hugging Face model
+wget https://huggingface.co/IslombekT/uzbek-gpt-103m/resolve/main/model.safetensors
+
+# generate
+python generate.py --ckpt model.safetensors --prompt "Oʻzbekiston "
+```
+
+`generate.py` loads `model.safetensors` directly — no checkpoint of your own and no training required. The tokenizer downloads automatically from the Hub. A one-click runnable version is also available as a [Kaggle notebook](#).
+
 ## Why
 
 Uzbek is a low-resource language with little dedicated open tooling. The goal was to build a usable Uzbek base model the hard way — understanding every component rather than fine-tuning an existing model — and release it openly as a foundation for further Uzbek NLP work.
