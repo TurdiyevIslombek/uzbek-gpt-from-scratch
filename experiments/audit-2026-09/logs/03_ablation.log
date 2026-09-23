@@ -1,0 +1,52 @@
+========================================================================
+PART 1 — why do the two eval sets score so differently?
+========================================================================
+  OLD         1,645,017 chars | Cyrillic  0.51% | Latin 82.51% | digits 0.86% | punct 4.35% | mean word 7.09
+  CLEAN       1,609,252 chars | Cyrillic  0.20% | Latin 83.89% | digits 0.77% | punct 2.91% | mean word 7.01
+
+  The from-scratch model's tokenizer was trained on Uzbek LATIN only. Cyrillic
+  falls back to bytes, which is expensive for it and cheap for multilingual mGPT.
+  If OLD carries more Cyrillic than CLEAN, that alone moves the two models by
+  different amounts and the -0.081 'memorisation' figure is not memorisation.
+
+  from-scratch   OLD 1.1078 -> CLEAN 1.0264   delta -0.0814
+  mGPT base      OLD 1.1653 -> CLEAN 1.1091   delta -0.0562  <- control
+  difference-in-differences                  -0.0252
+  A NEGATIVE diff-in-diff means the from-scratch model did RELATIVELY BETTER
+  on text it never saw — the opposite of a memorisation benefit.
+
+========================================================================
+PART 2 — score the 232M tokenizer ablation on the clean set
+========================================================================
+checkpoint: /kaggle/input/datasets/islombekturdiyev/ablation-best/ablation_best.pt (939 MB)
+config from checkpoint: {'vocab_size': 100000, 'n_embd': 768, 'n_layer': 12, 'n_head': 12, 'block_size': 1024}
+saved at step 10000 | val 1.7920093834400177
+ablation model: 232M parameters
+
+  [ablation / CLEAN] bpb=1.0693  CE=1.9104  chunks=1247
+  [ablation / OLD (contaminated)] bpb=1.1604  CE=2.0742  chunks=1285
+  [ablation / spans] bpb=1.0492  spans=2058  (2 truncated)
+
+========================================================================
+ABLATION RESULTS
+========================================================================
+ablation model      232M params, mGPT tokenizer (vocab 100,000)
+                    trained on the same corpus text, same architecture
+
+  ablation on OLD   (contaminated)   1.1604 bpb
+  ablation on CLEAN (never seen)     1.0693 bpb
+  paper claimed                      1.1579 bpb (on contaminated text)
+
+PROTOCOL A — 512-token chunks, CLEAN
+  from-scratch 103M, own tokenizer   1.0264
+  ablation     232M, mGPT tokenizer   1.0693
+
+PROTOCOL B — byte-aligned spans, CLEAN  (the fair-context comparison)
+  from-scratch 103M, own tokenizer   1.0281
+  ablation     232M, mGPT tokenizer   1.0492
+
+PAIRED BOOTSTRAP, from-scratch vs ablation (positive = dedicated tokenizer better)
+  +0.0211 bpb   95% CI [+0.0195, +0.0227]   excludes zero: YES   P(<=0)=0.0000
+========================================================================
+
+saved -> /kaggle/working/ablation_results.json

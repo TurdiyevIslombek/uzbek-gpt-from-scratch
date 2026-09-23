@@ -1,0 +1,129 @@
+# Session 1 — the run behind the published figures (results/results_v3.json).
+# Its notebook outputs were overwritten by later re-runs; this log is rebuilt from the
+# console output saved at the time. Only lines that differ from session 2 were changed,
+# and every figure below is checked against results_v3.json.
+
+GPU: Tesla T4 | bf16: False
+
+========================================================================
+STAGE 1 — fingerprint every 24-token window of train.bin
+========================================================================
+train.bin 954,981,404 tokens | val.bin 106,109,045 tokens
+built 27,405,976 fingerprints in 148s (219 MB)
+
+========================================================================
+STAGE 2 — build the eval set from val documents that are absent from train.bin
+========================================================================
+  rejected (71% of windows in train): 31 iyul 2011 Xalqaro kuzatuvchilarga ko‘ra, ikki yil oldin Urumchida yuz bergan zo‘ravonliklardan beri Xitoy u...
+  rejected (6% of windows in train): - Подробности - Опубликовано: 18.07.2015 01:05 Insoniyatni doimo bir muammo o‘ylantirgani-o‘y...
+  rejected (100% of windows in train): Bu mukofot har yili “Eng yaxshi badiiy film”, “Eng yaxshi televizionniy film”, “Eng yaxshi bolalar va o‘smirla...
+
+kept 474 documents, rejected 306 (39.2% of val documents are duplicated in train)
+eval set: 200,818 words, 1,646,167 bytes
+
+========================================================================
+STAGE 3 — verify: exact search for eval passages inside train.bin
+========================================================================
+  probe  1  eval tok         0  absent
+  probe  2  eval tok    23,443  absent
+  probe  3  eval tok    46,886  absent
+  probe  4  eval tok    70,329  absent
+  probe  5  eval tok    93,772  absent
+  probe  6  eval tok   117,216  absent
+  probe  7  eval tok   140,659  absent
+  probe  8  eval tok   164,102  absent
+  probe  9  eval tok   187,545  absent
+  probe 10  eval tok   210,988  absent
+  probe 11  eval tok   234,432  absent
+  probe 12  eval tok   257,875  absent
+  probe 13  eval tok   281,318  absent
+  probe 14  eval tok   304,761  absent
+  probe 15  eval tok   328,204  absent
+  probe 16  eval tok   351,648  absent
+
+0/16 probes found in train.bin
+eval set verified clean — proceeding
+
+========================================================================
+STAGE 4 — rebuild the OLD contaminated eval set (for the memorisation delta)
+========================================================================
+old eval set: 203,257 words
+
+========================================================================
+STAGE 5 — adaptation pool
+========================================================================
+tokenized 1.10M tokens from 892 docs
+eval-text probes inside the adaptation pool: 0/12
+
+========================================================================
+STAGE 6 — QLoRA mGPT-1.3B (ctx 512, all-linear r=16, ~1M tokens)
+========================================================================
+
+trainable: 12,582,912
+steps: 488 x 2048 = 999,424 tokens
+ [488/488 18:39]
+Step	Training Loss
+50	2.101899
+100	2.060718
+150	2.085071
+200	2.072922
+250	2.057942
+300	2.033749
+350	2.070136
+400	2.047926
+450	2.030479
+trained in 18.7 min
+
+========================================================================
+STAGE 7 — Protocol A — 512-token chunks
+========================================================================
+  [from_scratch / CLEAN] bpb=1.0264  CE=3.3303  chunks=686
+  [from_scratch / OLD (contaminated)] bpb=1.1078  CE=3.3689  chunks=755
+
+========================================================================
+STAGE 8 — Protocol B — 2058 byte-aligned spans
+========================================================================
+  [from_scratch] bpb=1.0281  spans=2058  (2 truncated)
+
+  [mgpt_base / CLEAN] bpb=1.1091  CE=1.9816  chunks=1247
+  [mgpt_base] bpb=1.0774  spans=2058  (2 truncated)
+
+  [mgpt_qlora / CLEAN] bpb=1.1031  CE=1.9708  chunks=1247
+  [mgpt_qlora] bpb=1.0764  spans=2058  (2 truncated)
+
+========================================================================
+STAGE 9 — paired bootstrap, 10,000 resamples
+========================================================================
+
+========================================================================
+STAGE 10 — RESULTS
+========================================================================
+
+eval set            val.bin documents with zero 24-token overlap with train.bin
+                    200,818 words, 1,646,167 bytes
+documents           kept 474, rejected 306 as duplicates
+exact-search probes 0/16  (0/16 required)
+adaptation          1,000,000 tokens, ctx 512, all-linear r=16
+
+MEMORISATION EFFECT (same model, same protocol, two eval sets)
+  from-scratch on OLD   (trained on it)   1.1078 bpb
+  from-scratch on CLEAN (never seen)      1.0264 bpb
+  memorisation was worth                  -0.0813 bpb
+
+PROTOCOL A — 512-token chunks, CLEAN eval set
+  model                  bpb      per-token CE
+  from-scratch 103M    1.0264      3.3303
+  mGPT-1.3B base       1.1091      1.9816
+  mGPT-1.3B + QLoRA    1.1031      1.9708
+  paper claimed        1.1050 / 1.1628 / 1.1214  (on contaminated text)
+
+PROTOCOL B — 2058 byte-aligned spans, CLEAN eval set
+  from-scratch 103M    1.0281
+  mGPT-1.3B base       1.0774
+  mGPT-1.3B + QLoRA    1.0764
+
+PAIRED BOOTSTRAP (10,000 resamples, seed 20260913; positive = from-scratch better)
+  vs QLoRA baseline  +0.0483 bpb  95% CI [+0.0444, +0.0520]  excludes zero: YES  P(<=0)=0.0000
+  vs zero-shot base  +0.0493 bpb  95% CI [+0.0455, +0.0530]  excludes zero: YES  P(<=0)=0.0000
+
+saved -> /kaggle/working/results_v3.json, dedup_chunks_*.csv, /kaggle/working/uz_heldout_dedup.txt

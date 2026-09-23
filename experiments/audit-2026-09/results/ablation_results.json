@@ -1,0 +1,30 @@
+{
+  "eval_profile_old": {
+    "chars": 1645017,
+    "cyrillic_frac": 0.0050905249003505735,
+    "digit_frac": 0.008578026853217931
+  },
+  "eval_profile_clean": {
+    "chars": 1609252,
+    "cyrillic_frac": 0.0020475351281216366,
+    "digit_frac": 0.00768928669965922
+  },
+  "ablation_params": 231575968,
+  "ablation_config": {
+    "vocab_size": 100000,
+    "n_embd": 768,
+    "n_layer": 12,
+    "n_head": 12,
+    "block_size": 1024
+  },
+  "ablation_a_clean": 1.0693097568655547,
+  "ablation_a_old": 1.1603806008857223,
+  "ablation_b_clean": 1.0491906230158767,
+  "bootstrap_vs_from_scratch": {
+    "diff": 0.021113235027579336,
+    "ci_lo": 0.01953285933521396,
+    "ci_hi": 0.02268791225881627,
+    "excludes_zero": true,
+    "p_le_zero": 0.0
+  }
+}

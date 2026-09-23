@@ -1,0 +1,33 @@
+train.bin: /kaggle/input/datasets/islombekturdiyev/uzbek-fineweb2-tokens-16k/train.bin
+val.bin  : /kaggle/input/datasets/islombekturdiyev/uzbek-fineweb2-tokens-16k/val.bin (found)
+train tokens: 954,981,404   val tokens: 106,109,045
+rebuilding the eval text from the FineWeb-2 stream (same recipe as before)...
+eval text: 1,645,017 chars, 203,257 words
+eval text -> 386,765 tokens under uzbek-bpe-16k
+
+ probe  eval token pos   in train.bin   in val.bin
+----------------------------------------------------
+     1               0         YES @0           no
+     2          35,157    YES @35,157           no
+     3          70,314    YES @70,320           no
+     4         105,472   YES @105,478           no
+     5         140,629   YES @140,635           no
+     6         175,787   YES @175,793           no
+     7         210,944   YES @210,952  YES @13,027,100
+     8         246,102   YES @246,116           no
+     9         281,259   YES @281,273           no
+    10         316,417   YES @316,435           no
+    11         351,574             no           no
+    12         386,732   YES @386,750           no
+----------------------------------------------------
+
+11/12 probes found in train.bin
+1/12 probes found in val.bin
+
+========================================================================
+CONTAMINATED. The eval set is inside the from-scratch model's training
+data. uzbek-gpt-103m saw this text for ~2 epochs, so 1.105 bpb is too
+low, in the direction that flatters the paper's headline. Every bpb
+number measured on this eval set is affected, including the ablation.
+Do not evaluate against this eval set.
+========================================================================

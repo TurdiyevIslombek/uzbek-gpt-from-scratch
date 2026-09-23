@@ -1,0 +1,68 @@
+{
+  "config": {
+    "kgram": 24,
+    "eval_words": 200000,
+    "adapt_tokens": 1000000,
+    "ctx_train": 512,
+    "span_bytes": 800,
+    "resamples": 10000,
+    "seed": 20260913
+  },
+  "docs_kept": 474,
+  "docs_rejected": 306,
+  "clean_eval_bytes": 1646167,
+  "clean_eval_words": 200818,
+  "probes_in_train": "0/16",
+  "adapt_pool_leak": "0/12",
+  "trainable_params": 12582912,
+  "protocol_a": {
+    "from_scratch_clean": {
+      "bpb": 1.0264464532495445,
+      "ce": 3.330305211105608,
+      "chunks": 686,
+      "bytes": 1640844
+    },
+    "from_scratch_old": {
+      "bpb": 1.107792926530579,
+      "ce": 3.3689387281291308,
+      "chunks": 755,
+      "bytes": 1692688
+    },
+    "mgpt_base": {
+      "bpb": 1.1091309977928077,
+      "ce": 1.9815542585925339,
+      "chunks": 1247,
+      "bytes": 1642423
+    },
+    "mgpt_qlora": {
+      "bpb": 1.103087101744315,
+      "ce": 1.970756338439536,
+      "chunks": 1247,
+      "bytes": 1642423
+    }
+  },
+  "protocol_b": {
+    "from_scratch": 1.0280773879945624,
+    "mgpt_base": 1.077404185689897,
+    "mgpt_qlora": 1.076378531771412
+  },
+  "contamination_delta_bpb": -0.0813464732810345,
+  "bootstrap": {
+    "vs_qlora": {
+      "diff": 0.04830114379745187,
+      "ci_lo": 0.044428508203216914,
+      "ci_hi": 0.052002638483364685,
+      "excludes_zero": true,
+      "p_le_zero": 0.0,
+      "n_spans": 2058
+    },
+    "vs_base": {
+      "diff": 0.04932679771094817,
+      "ci_lo": 0.045459625793465894,
+      "ci_hi": 0.05303905250259878,
+      "excludes_zero": true,
+      "p_le_zero": 0.0,
+      "n_spans": 2058
+    }
+  }
+}
