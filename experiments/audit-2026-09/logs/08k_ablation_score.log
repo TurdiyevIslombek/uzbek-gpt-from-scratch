@@ -1,0 +1,32 @@
+# Excerpt: the end of the console output of `python 08k.py score` (Kaggle, GPU T4),
+# copied from the notebook log with Kaggle's timestamp column removed.
+# Training itself ran in the ablation-2-train notebook (fp16, 2 x T4) and finished at
+# its last step (step 16,821 counting from 0, so 16,822 steps; loss about 1.74, learning
+# rate 3.00e-05).
+
+checkpoint step 16,821 of 16,821 -> COMPLETE
+saved weights -> ablation_clean_model.safetensors
+============================================================================
+RESULTS — clean tokenizer ablation (Kaggle, fp16, 2 x T4)
+============================================================================
+trained to step 16,822: two full passes over exactly uzbek-gpt-103m's training documents
+
+                                  web spelling      normalized
+uzbek-gpt-103m                          1.0380          1.0281
+ablation, OLD (flawed run)              1.0477          1.0492
+ablation, NEW (clean run)               1.0310          1.0330
+
+gap, new ablation minus uzbek-gpt-103m (positive = dedicated tokenizer better) [95% CI]
+  web spelling: -0.0070 [-0.0083, -0.0057]
+  normalized:   +0.0049 [+0.0034, +0.0064]
+bits per word, new ablation: web 8.3706 | normalized 8.4675
+
+decomposition (web spelling):
+  vs mGPT + QLoRA 1M : total 0.0392 = tokenizer -0.0070 (-18%) + training data 0.0462 (118%)
+  vs mGPT + QLoRA 10M: total 0.0259 = tokenizer -0.0070 (-27%) + training data 0.0329 (127%)
+============================================================================
+saved -> /kaggle/working/retrain_results.json, rawcheck_ablation_clean_*.csv
+
+# Note added afterwards: the "decomposition" lines are printed by the script but are not
+# used in the paper. A tokenizer share near zero (and negative on this spelling) makes the
+# percentages meaningless; the paper reports the two differences and their intervals instead.

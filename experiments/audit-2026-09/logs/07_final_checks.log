@@ -1,0 +1,75 @@
+GPU: Tesla T4
+474 documents | 2058 spans | 1,630,427 bytes of web-spelled text
+
+============================================================================
+PART A — Table 1 on the 474 held-out documents, web spelling
+============================================================================
+  uzbek-bpe-16k (this study)   vocab   16,384   fertility 1.749   bytes/token 4.641
+  XLM-RoBERTa                  vocab  250,002   fertility 2.218   bytes/token 3.659
+  XGLM                         vocab  256,008   fertility 2.497   bytes/token 3.250
+  mT5                          vocab  250,100   fertility 2.502   bytes/token 3.244
+  GPT-4o (o200k_base)          vocab  200,019   fertility 2.578   bytes/token 3.148
+  mBERT                        vocab  119,547   fertility 2.825   bytes/token 2.873
+  BLOOM                        vocab  250,680   fertility 2.934   bytes/token 2.767
+  mGPT                         vocab  100,000   fertility 3.159   bytes/token 2.570
+  GPT-3.5/4 (cl100k_base)      vocab  100,277   fertility 3.187   bytes/token 2.547
+  Qwen2.5                      vocab  151,665   fertility 3.199   bytes/token 2.537
+  GPT-2                        vocab   50,257   fertility 3.426   bytes/token 2.369
+
+============================================================================
+PART B — modern multilingual baselines, zero-shot, web spelling, the spans of 05
+============================================================================
+  Qwen/Qwen2.5-0.5B        0.49B params | 6.0 min
+  Qwen/Qwen3-0.6B-Base     0.60B params | 7.7 min
+  Qwen/Qwen2.5-1.5B        1.54B params | 17.4 min
+  Qwen/Qwen3-1.7B-Base     1.72B params | 19.9 min
+
+============================================================================
+PART C — what uzbek-gpt-103m writes (one sample per prompt, fixed seeds, no selection)
+============================================================================
+
+============================================================================
+RESULTS
+============================================================================
+
+A. TABLE 1 — 474 documents, 200,818 words, web spelling
+   uzbek-bpe-16k (this study)     16,384    1.749    4.641
+   XLM-RoBERTa                   250,002    2.218    3.659
+   XGLM                          256,008    2.497    3.250
+   mT5                           250,100    2.502    3.244
+   GPT-4o (o200k_base)           200,019    2.578    3.148
+   mBERT                         119,547    2.825    2.873
+   BLOOM                         250,680    2.934    2.767
+   mGPT                          100,000    3.159    2.570
+   GPT-3.5/4 (cl100k_base)       100,277    3.187    2.547
+   Qwen2.5                       151,665    3.199    2.537
+   GPT-2                          50,257    3.426    2.369
+
+B. BITS-PER-BYTE, web spelling, same spans (positive gap = uzbek-gpt-103m better)
+   uzbek-gpt-103m                         1.0380
+   mGPT-1.3B + QLoRA (1M)                 1.0772
+   mGPT-1.3B zero-shot                    1.0801
+   Qwen/Qwen2.5-0.5B              0.49B   2.3565   +1.3185 [+1.3070, +1.3296]
+   Qwen/Qwen3-0.6B-Base           0.60B   1.9052   +0.8672 [+0.8575, +0.8769]
+   Qwen/Qwen2.5-1.5B              1.54B   1.9475   +0.9094 [+0.8993, +0.9194]
+   Qwen/Qwen3-1.7B-Base           1.72B   1.5315   +0.4935 [+0.4851, +0.5017]
+   (these models' training data may include some of the same web pages; that cannot be checked)
+
+C. SAMPLES
+   [Oʻzbekiston Respublikasi]  qonunchiligiga muvofiq ushbu mamlakatda faoliyat koʻrsatayotgan barcha fuqarolar sogʻligʻi toʻgʻrisida toʻliq va toʻgʻri xabardor boʻlishi hamda tegishli maʼlumotlarni oʻz vaqtida taqdim etishi lozim.
+5-bob. Qonun hujjatlarini hisobga olish qoidalari.
+6-modda. Tovarlar (ishlar, xizmatlar)ni roʻyxatga oluvchi shaxslar tomonidan Oʻzbekiston Respublikasining boshqa qonun hujjatlariga muvofiq xarid qilish; tovarlarning (xizmatlarning
+
+   [Toshkent shahrida]  ochilgan filialda faoliyat yuritib kelayotgan yoshlar bilan uchrashdi.
+«Biznesni rivojlantirish markazi» DUK rahbari Dilshod Rahimov uchrashuv davomida yoshlarning startap loyihalarini moliyalashtirish uchun biznes forum tashkil qilish, tadbirkorlik subyektlari uchun yaratilgan qulay shart-sharoitlar haqida maʼlumot berdi. Uchrashuv yakunida yangi loyihalar va moliyalash imkoniyatlari bo‘yicha fikr almashildi hamda yoshlarning startap loyihalari tanloviga
+
+   [Men oʻqishni yaxshi koʻraman, chunki]  biz ham talabalar va aspirantlar uchunmiz. Biz hammamiz bilamizki, oila ajoyib!
+Biz ikki yildan beri CSP bilan shugʻullanayapmiz va bu bilan hamkorlik qilishga tayyormiz!
+Caesars - bizning umumiy ishimizga yordam beradigan dastur.
+Consumer -ga qoʻshiling
+AIdan foydalanish juda oson,
+
+   [Sunʼiy intellekt]  (ANPC) – bu foydalanuvchilarga real vaqt rejimida sunʼiy intellekt algoritmlarini boshqarish imkonini beruvchi aqlli tizim. Bundan tashqari, foydalanuvchilar soʻnggi bir necha yil ichida ushbu biznes modeli bilan tanishishlari mumkin boʻlgan yangi texnologiyaga ega.
+Yangi qurilmamiz HTC One M5 va Snapdragon 765 protsessorlarida ishlaydi. Shu sababli, ular
+
+saved -> /kaggle/working/final_checks.json, table1_web.json, samples.json, modern_*_raw.csv

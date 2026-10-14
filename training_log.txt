@@ -1,3 +1,8 @@
+Console output of the training run (RunPod, 1x RTX 4090, 20 June 2026), reformatted for
+readability: a per-block timing column was removed and this header was added. The train.py in
+this repository is a tidied version of the script that produced this log, so its printed
+format differs.
+
 uzbek-gpt-103m — full training run log
 =======================================
 Hardware:  1x NVIDIA RTX 4090 (rented)

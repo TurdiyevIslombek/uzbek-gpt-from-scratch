@@ -1,0 +1,87 @@
+GPU: Tesla T4 | bf16: False
+
+============================================================================
+STAGE 1 — the 474 deduplicated held-out documents (as in the paper)
+============================================================================
+reusing /kaggle/working/uz_heldout_dedup.jsonl
+474 documents | 200,818 words | 1,646,167 bytes
+matches the paper's held-out set exactly
+
+============================================================================
+STAGE 2 — stream FineWeb-2 once: recover the raw web text + build the adaptation pool
+============================================================================
+reusing /kaggle/working/uz_heldout_dedup_raw.jsonl and /kaggle/working/adapt_dedup_1000000.npy
+exact matches: 474/474 | character-aligned: 474
+
+============================================================================
+STAGE 3 — two texts over the same documents, and one set of spans for both
+============================================================================
+documents: 474 | spans: 2058 | words: 200,818
+bytes: clean 1,646,167 | raw 1,630,427
+characters that differ between the two texts: 19,468
+oʻ/gʻ marks  clean: ʻ 81% ‘ 19% ʼ 0%
+             raw:   ' 70% ‘ 19% ’ 6% ʻ 5% ` 1% ʼ 0%
+
+============================================================================
+STAGE 4 — QLoRA mGPT-1.3B (ctx 512, all-linear r=16, ~1M tokens) — as in the paper
+============================================================================
+steps: 488 x 2048 tokens
+{'loss': '2.102', 'grad_norm': '0.4425', 'learning_rate': '0.0001986', 'epoch': '0.09311'}
+{'loss': '2.061', 'grad_norm': '0.4229', 'learning_rate': '0.0001874', 'epoch': '0.1862'}
+{'loss': '2.085', 'grad_norm': '0.423', 'learning_rate': '0.0001663', 'epoch': '0.2793'}
+{'loss': '2.073', 'grad_norm': '0.4785', 'learning_rate': '0.0001376', 'epoch': '0.3724'}
+{'loss': '2.058', 'grad_norm': '0.3985', 'learning_rate': '0.0001047', 'epoch': '0.4655'}
+{'loss': '2.034', 'grad_norm': '0.4007', 'learning_rate': '7.13e-05', 'epoch': '0.5587'}
+{'loss': '2.07', 'grad_norm': '0.4213', 'learning_rate': '4.111e-05', 'epoch': '0.6518'}
+{'loss': '2.048', 'grad_norm': '0.3688', 'learning_rate': '1.761e-05', 'epoch': '0.7449'}
+{'loss': '2.03', 'grad_norm': '0.4055', 'learning_rate': '3.466e-06', 'epoch': '0.838'}
+{'train_runtime': '1192', 'train_samples_per_second': '1.637', 'train_steps_per_second': '0.409', 'train_loss': '2.062', 'epoch': '0.9088'}
+trained in 19.9 min
+
+============================================================================
+STAGE 5 — score all four models on CLEAN and RAW (Protocol B, identical spans)
+============================================================================
+  [from_scratch / clean] bpb=1.0281  spans=2058  (2 truncated)
+  [from_scratch / raw  ] bpb=1.0380  spans=2058  (2 truncated)
+  [from_scratch] 1.6 min
+  [    ablation / clean] bpb=1.0492  spans=2058  (2 truncated)
+  [    ablation / raw  ] bpb=1.0477  spans=2058  (2 truncated)
+  [ablation] 4.8 min
+  [  mgpt_qlora / clean] bpb=1.0767  spans=2058  (2 truncated)
+  [  mgpt_qlora / raw  ] bpb=1.0772  spans=2058  (2 truncated)
+  [mgpt_qlora] 17.2 min
+  [   mgpt_base / clean] bpb=1.0774  spans=2058  (2 truncated)
+  [   mgpt_base / raw  ] bpb=1.0801  spans=2058  (2 truncated)
+  [mgpt_base] 14.9 min
+
+============================================================================
+STAGE 6 — paired bootstrap, 10,000 resamples
+============================================================================
+
+============================================================================
+RESULTS
+============================================================================
+documents recovered   474/474 exact, 474 used
+characters changed    19,468  (CLEAN = our tokenizer's spelling, RAW = web spelling)
+oʻ/gʻ marks           clean: ʻ 81% ‘ 19% ʼ 0%
+                      raw:   ' 70% ‘ 19% ’ 6% ʻ 5% ` 1% ʼ 0%
+
+model                  CLEAN bpb    paper   RAW bpb  CLEAN bits/word  RAW bits/word
+uzbek-gpt-103m            1.0281   1.0281    1.0380           8.4275         8.4277
+ablation (mGPT tok)       1.0492   1.0492    1.0477           8.6005         8.5061
+mGPT-1.3B + QLoRA         1.0767   1.0764    1.0772           8.8261         8.7460
+mGPT-1.3B base            1.0774   1.0774    1.0801           8.8318         8.7695
+
+GAP to uzbek-gpt-103m, bits/byte [95% CI]   (positive = uzbek-gpt-103m better)
+                                             CLEAN                         RAW          CHANGE (raw - clean)
+ablation (mGPT tok)     +0.0211 [+0.0195, +0.0227]  +0.0096 [+0.0082, +0.0111]    -0.0115 [-0.0122, -0.0107]
+mGPT-1.3B + QLoRA       +0.0486 [+0.0448, +0.0523]  +0.0392 [+0.0354, +0.0428]    -0.0094 [-0.0100, -0.0089]
+mGPT-1.3B base          +0.0493 [+0.0455, +0.0530]  +0.0421 [+0.0383, +0.0458]    -0.0072 [-0.0077, -0.0067]
+
+VERDICT  (a change under 0.001 bits/byte is below the paper's reported precision)
+  ablation (mGPT tok)   gap SHRINKS by 0.0115 on web text (54% of the gap) — the normalized text flattered us
+  mGPT-1.3B + QLoRA     gap SHRINKS by 0.0094 on web text (19% of the gap) — the normalized text flattered us
+  mGPT-1.3B base        gap SHRINKS by 0.0072 on web text (15% of the gap) — the normalized text flattered us
+============================================================================
+
+saved -> /kaggle/working/rawcheck_results.json, rawcheck_*.csv, uz_heldout_dedup_raw.jsonl

@@ -31,7 +31,7 @@ def load_model(ckpt_path, device):
         cfg = dict(vocab_size=c["vocab_size"], n_embd=c["n_embd"],
                    block_size=c["block_size"], num_heads=c["n_head"], n_layers=c["n_layer"])
     model = GPT(**cfg).to(device)
-    model.load_state_dict(sd, strict=False)
+    model.load_state_dict(sd)          # strict: fail loudly if the weights don't match model.py
     model.eval()
     return model, cfg["block_size"]
 
@@ -44,8 +44,10 @@ def generate(model, tok, block_size, prompt, device,
     for _ in range(max_new_tokens):
         cond = x[:, -block_size:]
         logits = model(cond)[:, -1, :]
-        for t in set(x[0].tolist()):
-            logits[0, t] /= rep_penalty
+        seen = torch.tensor(sorted(set(x[0].tolist())), device=logits.device)
+        lg = logits[0, seen]
+        # penalize repeats: shrink positive scores, push negative scores further down
+        logits[0, seen] = torch.where(lg > 0, lg / rep_penalty, lg * rep_penalty)
         logits = logits / temperature
         if top_k:
             v, _ = torch.topk(logits, top_k)

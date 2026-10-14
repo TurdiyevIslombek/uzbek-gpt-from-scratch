@@ -13,12 +13,11 @@ Why v3 exists:
       window in train.bin, then keeps only val documents with zero fingerprint
       overlap. What survives is text the from-scratch model provably never saw.
 
-CONSEQUENCE YOU SHOULD ABSORB
-  Your model's reported validation loss of 3.059 was measured on val.bin, which
-  we now know is partly duplicated from train.bin. That number is optimistic too.
-  This is a property of the corpus, not a mistake you made — but the paper has to
-  say the eval set was deduplicated against the training split, because from now
-  on it will have been.
+CONSEQUENCE
+  The reported validation loss of 3.059 was measured on val.bin, which is partly
+  duplicated from train.bin, so that number is optimistic too. The duplication
+  comes from the corpus; from v3 on, the eval set is deduplicated against the
+  training split.
 
 STAGES
   1  fingerprint index of train.bin            (~3 min, one pass)

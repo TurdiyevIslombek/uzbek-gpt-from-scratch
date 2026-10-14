@@ -1,0 +1,18 @@
+# Console output of 09_document_bootstrap.py (CPU)
+
+documents 474 | spans 2058 | spans crossing a document boundary 461 | documents with at least one span 454
+
+gap to uzbek-gpt-103m (model minus mine)  spelling         bpb      gap   span-level 95% CI   document-level 95% CI width x
+mGPT-1.3B + QLoRA 1M                      web           1.0772  +0.0392   [+0.0354, +0.0428]   [+0.0306, +0.0486]   2.45
+mGPT-1.3B zero-shot                       web           1.0801  +0.0421   [+0.0383, +0.0458]   [+0.0336, +0.0514]   2.39
+mGPT-1.3B + QLoRA 10M                     web           1.0639  +0.0258   [+0.0222, +0.0293]   [+0.0178, +0.0340]   2.30
+Ablation, clean retrain                   web           1.0310  -0.0070   [-0.0083, -0.0057]   [-0.0086, -0.0054]   1.26
+Qwen3-1.7B-Base                           web           1.5315  +0.4935   [+0.4851, +0.5017]   [+0.4699, +0.5164]   2.80
+Qwen3-0.6B-Base                           web           1.9052  +0.8672   [+0.8575, +0.8769]   [+0.8402, +0.8936]   2.74
+Qwen2.5-1.5B                              web           1.9475  +0.9094   [+0.8993, +0.9194]   [+0.8826, +0.9355]   2.62
+Qwen2.5-0.5B                              web           2.3565  +1.3185   [+1.3070, +1.3296]   [+1.2893, +1.3468]   2.55
+mGPT-1.3B + QLoRA 1M                      normalized    1.0767  +0.0486   [+0.0448, +0.0523]   [+0.0398, +0.0585]   2.48
+mGPT-1.3B zero-shot                       normalized    1.0774  +0.0493   [+0.0455, +0.0530]   [+0.0405, +0.0591]   2.45
+Ablation, clean retrain                   normalized    1.0330  +0.0049   [+0.0034, +0.0064]   [+0.0024, +0.0076]   1.78
+
+saved -> results/document_bootstrap.json

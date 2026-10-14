@@ -1,5 +1,5 @@
 torch>=2.1
 numpy
-transformers
+transformers>=5    # the tokenizer's config needs transformers 5 or newer
 datasets
 safetensors

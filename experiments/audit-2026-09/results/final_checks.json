@@ -1,0 +1,159 @@
+{
+  "table1": {
+    "rows": [
+      {
+        "tokenizer": "uzbek-bpe-16k (this study)",
+        "vocab": 16384,
+        "tokens": 351208,
+        "fertility": 1.748887051957494,
+        "bytes_per_token": 4.640993371449397
+      },
+      {
+        "tokenizer": "XLM-RoBERTa",
+        "vocab": 250002,
+        "tokens": 445492,
+        "fertility": 2.2183867979961955,
+        "bytes_per_token": 3.6587727725750407
+      },
+      {
+        "tokenizer": "XGLM",
+        "vocab": 256008,
+        "tokens": 501477,
+        "fertility": 2.4971715682857116,
+        "bytes_per_token": 3.2503065943203775
+      },
+      {
+        "tokenizer": "mT5",
+        "vocab": 250100,
+        "tokens": 502397,
+        "fertility": 2.501752830921531,
+        "bytes_per_token": 3.2443545642191336
+      },
+      {
+        "tokenizer": "GPT-4o (o200k_base)",
+        "vocab": 200019,
+        "tokens": 517792,
+        "fertility": 2.5784142855720105,
+        "bytes_per_token": 3.147893362585749
+      },
+      {
+        "tokenizer": "mBERT",
+        "vocab": 119547,
+        "tokens": 567407,
+        "fertility": 2.825478791741776,
+        "bytes_per_token": 2.87263639680159
+      },
+      {
+        "tokenizer": "BLOOM",
+        "vocab": 250680,
+        "tokens": 589145,
+        "fertility": 2.933726060412911,
+        "bytes_per_token": 2.766643186312368
+      },
+      {
+        "tokenizer": "mGPT",
+        "vocab": 100000,
+        "tokens": 634309,
+        "fertility": 3.1586262187652503,
+        "bytes_per_token": 2.5696529609385963
+      },
+      {
+        "tokenizer": "GPT-3.5/4 (cl100k_base)",
+        "vocab": 100277,
+        "tokens": 640017,
+        "fertility": 3.1870499656405302,
+        "bytes_per_token": 2.546735477338883
+      },
+      {
+        "tokenizer": "Qwen2.5",
+        "vocab": 151665,
+        "tokens": 642423,
+        "fertility": 3.199030963359858,
+        "bytes_per_token": 2.537197454013944
+      },
+      {
+        "tokenizer": "GPT-2",
+        "vocab": 50257,
+        "tokens": 687990,
+        "fertility": 3.425937913932018,
+        "bytes_per_token": 2.369153621418916
+      }
+    ],
+    "words": 200818,
+    "bytes": 1629954,
+    "docs": 474
+  },
+  "modern": {
+    "Qwen/Qwen2.5-0.5B": {
+      "params": 494032768,
+      "bpb": 2.356491749656905,
+      "bits_per_word": 19.13218821977043,
+      "spans": 2058,
+      "gap": [
+        1.3184567586227915,
+        1.3069816313465832,
+        1.3295571223116445
+      ]
+    },
+    "Qwen/Qwen3-0.6B-Base": {
+      "params": 596049920,
+      "bpb": 1.9052496165700823,
+      "bits_per_word": 15.468585568004409,
+      "spans": 2058,
+      "gap": [
+        0.8672146255359687,
+        0.8574615696376112,
+        0.876896806963607
+      ]
+    },
+    "Qwen/Qwen2.5-1.5B": {
+      "params": 1543714304,
+      "bpb": 1.9474674079525176,
+      "bits_per_word": 15.811348801132365,
+      "spans": 2058,
+      "gap": [
+        0.9094324169184036,
+        0.8992502440536925,
+        0.9194135669627754
+      ]
+    },
+    "Qwen/Qwen3-1.7B-Base": {
+      "params": 1720574976,
+      "bpb": 1.5315192620708926,
+      "bits_per_word": 12.434295510862865,
+      "spans": 2058,
+      "gap": [
+        0.49348427103677905,
+        0.48512420315319205,
+        0.5017347986677047
+      ]
+    }
+  },
+  "samples": [
+    {
+      "prompt": "Oʻzbekiston Respublikasi",
+      "seed": 1000,
+      "continuation": " qonunchiligiga muvofiq ushbu mamlakatda faoliyat koʻrsatayotgan barcha fuqarolar sogʻligʻi toʻgʻrisida toʻliq va toʻgʻri xabardor boʻlishi hamda tegishli maʼlumotlarni oʻz vaqtida taqdim etishi lozim.\n5-bob. Qonun hujjatlarini hisobga olish qoidalari.\n6-modda. Tovarlar (ishlar, xizmatlar)ni roʻyxatga oluvchi shaxslar tomonidan Oʻzbekiston Respublikasining boshqa qonun hujjatlariga muvofiq xarid qilish; tovarlarning (xizmatlarning"
+    },
+    {
+      "prompt": "Toshkent shahrida",
+      "seed": 1001,
+      "continuation": " ochilgan filialda faoliyat yuritib kelayotgan yoshlar bilan uchrashdi.\n«Biznesni rivojlantirish markazi» DUK rahbari Dilshod Rahimov uchrashuv davomida yoshlarning startap loyihalarini moliyalashtirish uchun biznes forum tashkil qilish, tadbirkorlik subyektlari uchun yaratilgan qulay shart-sharoitlar haqida maʼlumot berdi. Uchrashuv yakunida yangi loyihalar va moliyalash imkoniyatlari bo‘yicha fikr almashildi hamda yoshlarning startap loyihalari tanloviga"
+    },
+    {
+      "prompt": "Men oʻqishni yaxshi koʻraman, chunki",
+      "seed": 1002,
+      "continuation": " biz ham talabalar va aspirantlar uchunmiz. Biz hammamiz bilamizki, oila ajoyib!\nBiz ikki yildan beri CSP bilan shugʻullanayapmiz va bu bilan hamkorlik qilishga tayyormiz!\nCaesars - bizning umumiy ishimizga yordam beradigan dastur.\nConsumer -ga qoʻshiling\nAIdan foydalanish juda oson,"
+    },
+    {
+      "prompt": "Sunʼiy intellekt",
+      "seed": 1003,
+      "continuation": " (ANPC) – bu foydalanuvchilarga real vaqt rejimida sunʼiy intellekt algoritmlarini boshqarish imkonini beruvchi aqlli tizim. Bundan tashqari, foydalanuvchilar soʻnggi bir necha yil ichida ushbu biznes modeli bilan tanishishlari mumkin boʻlgan yangi texnologiyaga ega.\nYangi qurilmamiz HTC One M5 va Snapdragon 765 protsessorlarida ishlaydi. Shu sababli, ular"
+    }
+  ],
+  "reference": {
+    "uzbek-gpt-103m": 1.038,
+    "mGPT-1.3B + QLoRA (1M)": 1.0772,
+    "mGPT-1.3B zero-shot": 1.0801
+  }
+}

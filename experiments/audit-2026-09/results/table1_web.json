@@ -1,0 +1,84 @@
+{
+  "rows": [
+    {
+      "tokenizer": "uzbek-bpe-16k (this study)",
+      "vocab": 16384,
+      "tokens": 351208,
+      "fertility": 1.748887051957494,
+      "bytes_per_token": 4.640993371449397
+    },
+    {
+      "tokenizer": "XLM-RoBERTa",
+      "vocab": 250002,
+      "tokens": 445492,
+      "fertility": 2.2183867979961955,
+      "bytes_per_token": 3.6587727725750407
+    },
+    {
+      "tokenizer": "XGLM",
+      "vocab": 256008,
+      "tokens": 501477,
+      "fertility": 2.4971715682857116,
+      "bytes_per_token": 3.2503065943203775
+    },
+    {
+      "tokenizer": "mT5",
+      "vocab": 250100,
+      "tokens": 502397,
+      "fertility": 2.501752830921531,
+      "bytes_per_token": 3.2443545642191336
+    },
+    {
+      "tokenizer": "GPT-4o (o200k_base)",
+      "vocab": 200019,
+      "tokens": 517792,
+      "fertility": 2.5784142855720105,
+      "bytes_per_token": 3.147893362585749
+    },
+    {
+      "tokenizer": "mBERT",
+      "vocab": 119547,
+      "tokens": 567407,
+      "fertility": 2.825478791741776,
+      "bytes_per_token": 2.87263639680159
+    },
+    {
+      "tokenizer": "BLOOM",
+      "vocab": 250680,
+      "tokens": 589145,
+      "fertility": 2.933726060412911,
+      "bytes_per_token": 2.766643186312368
+    },
+    {
+      "tokenizer": "mGPT",
+      "vocab": 100000,
+      "tokens": 634309,
+      "fertility": 3.1586262187652503,
+      "bytes_per_token": 2.5696529609385963
+    },
+    {
+      "tokenizer": "GPT-3.5/4 (cl100k_base)",
+      "vocab": 100277,
+      "tokens": 640017,
+      "fertility": 3.1870499656405302,
+      "bytes_per_token": 2.546735477338883
+    },
+    {
+      "tokenizer": "Qwen2.5",
+      "vocab": 151665,
+      "tokens": 642423,
+      "fertility": 3.199030963359858,
+      "bytes_per_token": 2.537197454013944
+    },
+    {
+      "tokenizer": "GPT-2",
+      "vocab": 50257,
+      "tokens": 687990,
+      "fertility": 3.425937913932018,
+      "bytes_per_token": 2.369153621418916
+    }
+  ],
+  "words": 200818,
+  "bytes": 1629954,
+  "docs": 474
+}

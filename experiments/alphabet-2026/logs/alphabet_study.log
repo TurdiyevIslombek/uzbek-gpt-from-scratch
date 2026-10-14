@@ -1,0 +1,52 @@
+ok    round-trip  G'ijduvon, tog' va bog'
+ok    round-trip  SHAHAR va Choʻl
+ok    round-trip  qoʻngʻiroq chalindi
+
+0 failure(s)
+Men öqişni yaxşi köraman. Ğijduvon, toğ va boğ.
+train.bin 954,981,404 tokens | val.bin 106,109,045 tokens
+
+fingerprints: 27,405,976 in 197s
+kept 474 documents, rejected 306 | 200,818 words | 1,646,167 bytes
+matches the paper's held-out set exactly
+-> /kaggle/working/uz_heldout_dedup.jsonl
+U+02BB ʻ (official)      [280, 1145]        same as ʻ
+U+0027 ' (ASCII)         [280, 1145]        same as ʻ
+U+2019 ’ (right quote)   [280, 1145]        same as ʻ
+U+2018 ‘ (left quote)    [79, 282, 1145]    DIFFERENT - not normalized
+U+0060 ` (backtick)      [280, 1145]        same as ʻ
+
+normalizer: Sequence(normalizers=[Replace(pattern=String("’"), content="'"), Replace(pattern=String("`"), content="'"), Replace(pattern=String("o'"), content="oʻ"), Replace(pattern=String("O'"), content="Oʻ"), Replace(pattern=String("g'"), content="gʻ"), ...])
+474 passages loaded from /kaggle/working/uz_heldout_dedup.jsonl
+oʻ/gʻ marks: U+02BB ʻ 81%, U+2018 ‘ 19%, U+02BC ʼ 0%
+  warning: no ASCII/right-quote/backtick marks - this text looks pre-normalized
+words changed by the amendment: 28.5%; naive and careful disagree in 48 of 474 passages
+tokenizers (fertility):
+  uzbek-bpe-16k            raw 1.749   norm 1.709   new 2.353
+  uzbek-bpe-16k + new→old map raw 1.749   norm 1.709   new 1.709
+
+sentencepiece.bpe.model: 100%|█████████████| 5.07M/5.07M [00:00<00:00, 81.1MB/s]
+
+  XLM-RoBERTa              raw 2.219   norm 2.219   new 2.268
+
+  XGLM                     raw 2.497   norm 2.497   new 2.460
+
+spiece.model: 100%|████████████████████████| 4.31M/4.31M [00:00<00:00, 75.5MB/s]
+
+  mT5                      raw 2.502   norm 2.502   new 2.461
+  GPT-4o o200k_base        raw 2.579   norm 2.574   new 2.604
+
+  mBERT                    raw 2.753   norm 2.734   new 2.789
+
+  BLOOM                    raw 2.979   norm 2.979   new 3.011
+
+  Qwen2.5                  raw 3.221   norm 3.221   new 3.103
+  GPT-3.5/4 cl100k_base    raw 3.306   norm 3.328   new 3.164
+  GPT-2                    raw 3.520   norm 3.520   new 3.502
+
+  mGPT                     raw 3.178   norm 3.178   new 3.072
+done -> /kaggle/working/alphabet_results/
+3,000 passages loaded from /kaggle/working/raw_sample.jsonl
+oʻ/gʻ marks: U+2018 ‘ 34%, U+02BB ʻ 23%, U+0027 ' 19%, U+2019 ’ 18%, U+0060 ` 6%, U+00B4 ´ 0%, U+02BC ʼ 0%
+words changed by the amendment: 26.9%; naive and careful disagree in 315 of 3,000 passages
+done -> /kaggle/working/alphabet_results_raw/

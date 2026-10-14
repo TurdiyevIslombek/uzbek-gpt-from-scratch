@@ -1,0 +1,47 @@
+GPU: Tesla T4 | bf16: False
+
+============================================================================
+STAGE 1 — the two texts from 05 (normalized = CLEAN, web spelling = RAW)
+============================================================================
+474 documents | 2058 spans | clean 1,646,167 bytes | raw 1,630,427 bytes
+uzbek-gpt-103m span scores from 05: found — confidence intervals will be computed
+
+============================================================================
+STAGE 2 — adapters from the sweep (reuse if attached, otherwise retrain)
+============================================================================
+   1,000,000 tokens: reusing /kaggle/input/notebooks/islombekturdiyev/audit-2026-09-b-original/sweep_adapter_1000000
+  10,000,000 tokens: reusing /kaggle/input/notebooks/islombekturdiyev/audit-2026-09-b-original/sweep_adapter_10000000
+
+============================================================================
+STAGE 3 — score each adapter on CLEAN and RAW (the exact spans of 05)
+============================================================================
+  [ 1,000,000 / clean] bpb=1.0757
+  [ 1,000,000 / raw  ] bpb=1.0766
+  [ 1,000,000] 17.5 min
+  [10,000,000 / clean] bpb=1.0591
+  [10,000,000 / raw  ] bpb=1.0639
+  [10,000,000] 17.4 min
+
+============================================================================
+STAGE 4 — results
+============================================================================
+
+============================================================================
+RESULTS
+============================================================================
+adapters: 1,000,000 reused, 10,000,000 reused
+
+adaptation tokens      CLEAN bpb     RAW bpb   gap to uzbek-gpt-103m on RAW [95% CI]
+0 (zero-shot)             1.0774      1.0801   +0.0421
+1M                        1.0757      1.0766   +0.0386 [+0.0348, +0.0422]
+10M                       1.0591      1.0639   +0.0258 [+0.0222, +0.0293]
+uzbek-gpt-103m            1.0281      1.0380
+
+reproduction check: CLEAN column vs published Figure 2 (1.0757 / 1.0591): MATCH
+
+RAW  : 1M -> 10M -0.0127 bpb per tenfold | log-linear close of the gap at ~1,068M adaptation tokens
+CLEAN: 1M -> 10M -0.0166 bpb per tenfold | log-linear close of the gap at ~748M adaptation tokens
+(two points, one decade: an order of magnitude, not a prediction)
+============================================================================
+
+saved -> /kaggle/working/figure2_final.png, sweep_raw_results.json, sweep_*_clean.csv, sweep_*_raw.csv

@@ -2,88 +2,99 @@
 
 ```
 experiments/
-├── README.md                      ← this file
-├── audit-2026-09/                 ← current results: use these
-│   ├── audit_A_contamination_eval_ablation.ipynb
-│   ├── audit_B_adaptation_sweep.ipynb
+├── README.md                     ← this file
+├── audit-2026-09/                ← all current results
 │   ├── 01_contamination_check.py
 │   ├── 02_clean_eval_and_score.py
 │   ├── 03_score_ablation.py
 │   ├── 04_adaptation_sweep.py
-│   ├── results/                   ← JSON results, Figure 2, per-span losses
-│   └── logs/                      ← console output of every run
-└── superseded/                    ← the original experiments, kept for comparison
+│   ├── 05_eval_text_check.py     ← headline results (web spelling)
+│   ├── 06_sweep_raw.py           ← final Figure 2
+│   ├── 07_final_checks.py        ← Table 1, current models, samples
+│   ├── 08k_retrain_ablation_kaggle.py  ← clean retrain of the tokenizer ablation (Table 4)
+│   ├── ablation-1-prepare.ipynb  ┐
+│   ├── ablation-2-train.ipynb    ├ the same script as three Kaggle notebooks
+│   ├── ablation-3-score.ipynb    ┘
+│   ├── 09_document_bootstrap.py  ← confidence intervals, resampling documents (CPU, seconds)
+│   ├── build_heldout.py          ← rebuilds the 474-document test set anywhere
+│   ├── audit_A_contamination_eval_ablation.ipynb
+│   ├── audit_B_adaptation_sweep.ipynb
+│   ├── logs/                     ← console output of every run
+│   └── results/                  ← JSON results, per-span scores, figures, test set
+├── alphabet-2026/                ← side study: the Uzbek alphabet amendment
+└── superseded/                   ← the original experiments, kept for comparison
 ```
 
-## What happened
+## The runs, in order
 
-The original results were measured on a held-out set that turned out to be the opening of `train.bin`. The held-out text had been built by streaming FineWeb-2 from its beginning, and `tokenize_data.py` splits train and validation by position, so the first documents of the stream are training data. The model had trained on its own test set for about two epochs.
+| Script | Question | Result |
+|---|---|---|
+| `01_contamination_check.py` | Is the original test set really unseen? | No: 11 of 12 passages are in `train.bin` |
+| `02_clean_eval_and_score.py` | Build a clean test set; re-score every model | 474 documents, 0 of 16 passages in training data |
+| `03_score_ablation.py` | What does the tokenizer alone contribute? | Ablation re-scored on the clean set |
+| `04_adaptation_sweep.py` | Does more fine-tuning close the gap? | Sweep at 0 / 1M / 10M tokens |
+| `05_eval_text_check.py` | Does the test text's spelling favour my model? | Yes; web spelling becomes the headline |
+| `06_sweep_raw.py` | The sweep, re-scored in web spelling | Final Figure 2 |
+| `07_final_checks.py` | Current models? Documented fertility sample? What does the model write? | Qwen much worse; Table 1 on the test set; samples |
+| `08k_retrain_ablation_kaggle.py` | Does the tokenizer matter when the training documents are exactly the same? | Not for quality: ablation 1.0310 vs mine 1.0380 (web), 1.0330 vs 1.0281 (normalized) |
+| `09_document_bootstrap.py` | Are the intervals too narrow because spans from one document are correlated? | Resampling documents widens them 1.3–2.8×; every difference still excludes zero |
 
-A second held-out set drawn from `val.bin` was also rejected: about 39% of validation documents appear elsewhere in the training data, because the web corpus contains duplicate pages.
+Runs 02–04 score the test set in my tokenizer's normalized spelling; 05–08 use the original web spelling, which is what the paper reports. Both are kept so the effect of spelling can be seen.
 
-The audit in `audit-2026-09/` builds a deduplicated held-out set, proves it shares nothing with the training data, and re-measures every model. Re-scoring the old held-out set with the same code reproduces the old published figures exactly (1.1050 / 1.1628 / 1.1579), so the correction can be checked.
+**The ablation numbers in runs 03 and 05 come from the first, flawed ablation run** (`ablation_best.pt`, step 10,000): its data cap counted words instead of tokens, so it trained on the whole corpus including the test documents' region, and it stopped at step 10,000 of 18,693. Run 08 replaces it. The old scores are kept so the change can be checked.
 
-## Results
+## Headline results (web spelling)
 
-Bits-per-byte on the deduplicated held-out set: 474 validation documents with no 24-token passage in common with `train.bin`. Protocol B: every model scores the same ~800-byte spans with the same preceding context. Lower is better. Intervals are from a paired bootstrap, 10,000 resamples.
+Bits-per-byte, lower is better; 95% CIs from a paired bootstrap over the 474 documents, 10,000 resamples (`09`; scripts 02–08k print span-level intervals, which are narrower).
 
-| Model | Params | Bits/byte | Gap to from-scratch [95% CI] |
-|---|---|---|---|
-| uzbek-gpt-103m (from scratch) | 103M | **1.0281** | — |
-| Ablation: same architecture, mGPT's tokenizer | 232M | 1.0492 | +0.0211 [0.0195, 0.0227] |
-| mGPT-1.3B + QLoRA, 1M tokens | 1.3B | 1.0764 | +0.0483 [0.0444, 0.0520] |
-| mGPT-1.3B, zero-shot | 1.3B | 1.0774 | +0.0493 [0.0455, 0.0530] |
+| Model | Size | Bits/byte | Gap to mine [95% CI] | Source |
+|---|---|---|---|---|
+| **uzbek-gpt-103m** | 0.10B | **1.0380** | — | 05 |
+| Ablation (mGPT tokenizer), clean retrain | 0.23B | 1.0310 | −0.0070 [−0.0086, −0.0054] | 08 |
+| mGPT-1.3B + QLoRA 1M | 1.3B | 1.0772 | +0.0392 [0.0306, 0.0486] | 05 |
+| mGPT-1.3B zero-shot | 1.3B | 1.0801 | +0.0421 [0.0336, 0.0514] | 05 |
+| mGPT-1.3B + QLoRA 10M | 1.3B | 1.0639 | +0.0258 [0.0178, 0.0340] | 06 |
+| Qwen3-1.7B-Base | 1.72B | 1.5315 | +0.4935 [0.4699, 0.5164] | 07 |
+| Qwen3-0.6B-Base | 0.60B | 1.9052 | +0.8672 [0.8402, 0.8936] | 07 |
+| Qwen2.5-1.5B | 1.54B | 1.9475 | +0.9094 [0.8826, 0.9355] | 07 |
+| Qwen2.5-0.5B | 0.49B | 2.3565 | +1.3185 [1.2893, 1.3468] | 07 |
 
-Adaptation budget sweep (`audit_B`):
+Same documents in normalized spelling: 1.0281 (mine), 1.0330 (ablation, +0.0049 [+0.0024, +0.0076]), 1.0767 (mGPT + QLoRA 1M), 1.0774 (mGPT zero-shot). Bits per word — comparable across the two spellings — is 8.428 for my model in both; the web-trained models, including the ablation (8.371 web, 8.468 normalized), do about 1% better on web spelling. The first, flawed ablation scored 1.0477 (web) and 1.0492 (normalized).
 
-| Adaptation tokens | 0 | 1M | 10M |
-|---|---|---|---|
-| mGPT-1.3B + QLoRA, bits/byte | 1.0774 | 1.0757 | 1.0591 |
+## Reproducibility
 
-## Run-to-run reproducibility
+- **Deterministic results reproduce exactly** across sessions (from-scratch, zero-shot mGPT, ablation, Qwen).
+- **QLoRA training is not bit-for-bit deterministic.** Four sessions of the 1M configuration gave 1.0764–1.0767 on normalized text.
+- **The correction is checkable.** Running the corrected code on the original test set reproduces the originally reported 1.1050 / 1.1628 / 1.1579.
+- **`build_heldout.py`** rebuilds the test set from `train.bin` / `val.bin` and refuses to continue unless it matches exactly (474 documents, 200,818 words, 1,646,167 bytes).
+- **`results/uz_heldout_dedup_raw.jsonl`** holds the recovered web text; normalizing it with `uzbek-bpe-16k` reproduces `uz_heldout_dedup.jsonl` character for character.
+- **Seed 20260913** is used everywhere.
 
-The evaluation script was run in three separate Kaggle sessions with identical code and seed. Figures in the paper and model card come from session 1.
+## How to run
 
-| Measurement | Session 1 | Session 2 | Session 3 |
-|---|---|---|---|
-| from-scratch, Protocol B | 1.0281 | 1.0281 | 1.0281 |
-| mGPT zero-shot, Protocol B | 1.0774 | 1.0774 | 1.0774 |
-| mGPT + QLoRA 1M, Protocol B | 1.0764 | 1.0766 | 1.0766 |
-| bootstrap vs QLoRA | +0.0483 [0.0444, 0.0520] | +0.0485 [0.0447, 0.0522] | +0.0485 [0.0446, 0.0522] |
-| ablation, Protocol B | 1.0492 | 1.0492 | — |
+Everything runs on a free Kaggle GPU (T4) with internet on.
 
-Everything that involves no training reproduces exactly. The QLoRA baseline moves by 0.0002, because 4-bit GPU training is not bit-for-bit deterministic. The sweep's 1M point (1.0757, in two sessions) trains on a slightly different slice of the same documents, so it differs a little more. All of this is far below the effects reported.
+| Notebook inputs | Run |
+|---|---|
+| dataset `uzbek-fineweb2-tokens-16k`, dataset `ablation-best` | 01, 02, 03 (notebook A), then 05 |
+| dataset `uzbek-fineweb2-tokens-16k` | 04 (notebook B) |
+| output of the 05 notebook (+ output of notebook B, to reuse adapters) | 06 |
+| output of the 05 notebook | 07 |
+| dataset `uzbek-fineweb2-tokens-16k`, output of the 05 notebook, Kaggle secret `HF_TOKEN` | 08k: `ablation-1-prepare` (CPU), then `ablation-2-train` (GPU T4 ×2, repeat until it says `TRAINING COMPLETE`, about 51 hours in total on the two GPUs), then `ablation-3-score` with the train notebook's output attached |
 
-The session 1 notebook outputs were overwritten by later re-runs; `logs/02_clean_eval_session1.log` is rebuilt from that session's saved console output and checked against `results/results_v3.json`.
-
-## How to reproduce
-
-Everything runs on a free Kaggle GPU (T4) with internet enabled.
-
-1. Open `audit_A_contamination_eval_ablation.ipynb` on Kaggle and add two inputs:
-   - [`uzbek-fineweb2-tokens-16k`](https://www.kaggle.com/datasets/islombekturdiyev/uzbek-fineweb2-tokens-16k): `train.bin` and `val.bin`, as produced by `tokenize_data.py`
-   - [`ablation-best`](https://www.kaggle.com/datasets/islombekturdiyev/ablation-best): `ablation_best.pt`, the 232M tokenizer-ablation checkpoint
-2. Run all cells. About 60–90 minutes.
-3. Open `audit_B_adaptation_sweep.ipynb` with the first input and run all cells. About 5 hours, mostly the 10M-token training run. Each stage caches its result, so a timeout does not lose finished work.
-
-The `.py` files are the same code as the notebook cells, for running outside Kaggle. They must run in order in one session, because each step reads the files the previous one wrote to `/kaggle/working`.
+Kaggle gives two T4s; scripts 01–07 pin one, because a 4-bit model can't be split across GPUs. 08k trains on both with `torchrun` and saves checkpoints to a private Hugging Face repo between sessions; it uses fp16 with loss scaling, since T4s have no bf16.
 
 ## Files in `results/`
 
-| File | What it is |
-|---|---|
-| `results_v3.json` | Every figure from `02_clean_eval_and_score.py`, session 1. Source of the published numbers. |
-| `ablation_results.json` | Ablation scores, bootstrap, and the eval-set text profile (Cyrillic share etc.). |
-| `figure2_clean.json` | Sweep results at 0 / 1M / 10M tokens. |
-| `figure2_clean.png` | Figure 2 of the paper. |
-| `dedup_chunks_*.csv` | Per-span losses for each model (span id, nats, bytes). Recompute any bootstrap on a CPU with no GPU. The QLoRA file is from session 2. |
+| File | What it is | From |
+|---|---|---|
+| `results_v3.json`, `ablation_results.json` | Normalized-spelling results | 02, 03 |
+| `figure2_clean.png`, `figure2_clean.json` | Sweep, normalized spelling | 04 |
+| `rawcheck_results.json`, `rawcheck_*.csv` | All four models × both spellings, per-span scores | 05 |
+| `uz_heldout_dedup.jsonl`, `uz_heldout_dedup_raw.jsonl` | The test set, normalized and web spelling | 05 |
+| `sweep_raw_results.json`, `sweep_*.csv`, `figure2_final.png` | Final Figure 2 | 06 |
+| `final_checks.json`, `table1_web.json`, `samples.json`, `modern_*_raw.csv` | Table 1, current models, samples | 07 |
+| `retrain_results.json`, `rawcheck_ablation_clean_raw.csv`, `rawcheck_ablation_clean_clean.csv`, `ablation_clean_config.json` | Clean ablation, both spellings, per-span scores | 08 |
+| `document_bootstrap.json` | Document-level intervals for every reported gap | 09 |
 
-## Notes on method
-
-**Bits-per-byte** is total negative log-likelihood divided by (ln 2 × total bytes), computed as an aggregate ratio rather than an average over chunks. It is used instead of perplexity because it does not depend on the tokenizer.
-
-**Protocol A** scores non-overlapping 512-token chunks per model, the original design. Because the Uzbek tokenizer packs more text into each token, a 512-token chunk covers about 2,250 bytes for it and about 1,300 for mGPT, which gives it extra context, and the chunks cannot be paired across models. **Protocol B** fixes both problems and is the headline.
-
-**The "memorisation effect" line** in `02_clean_eval_and_score.py`'s output is not a memorisation measurement. The old and clean held-out sets are different text; mGPT, which trained on neither, also scores much better on the clean set. `03_score_ablation.py` uses mGPT as a control and traces the difference to Cyrillic text (0.51% of the old set, 0.20% of the clean one).
-
-**Limitation of the clean set.** It keeps only documents that appear nowhere else in the corpus, so it leans away from boilerplate and syndicated news.
+The test-set text comes from FineWeb-2 and is shared under its ODC-By 1.0 licence.
