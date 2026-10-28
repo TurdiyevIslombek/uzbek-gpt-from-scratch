@@ -4,7 +4,7 @@ A 103M-parameter, decoder-only language model pretrained from scratch on Uzbek (
 
 On held-out Uzbek text it predicts better than mGPT-1.3B (13× its size, used as-is or fine-tuned on Uzbek) and than four current Qwen models of up to 1.7B parameters. A controlled ablation shows where that advantage comes from: training on Uzbek text. The tokenizer doesn't make the model more accurate; it makes it smaller and cheaper.
 
-- **Paper:** [`paper/Research_Islombek_Turdiyev_v18.pdf`](paper/Research_Islombek_Turdiyev_v18.pdf) · one-page summary: [`paper/one_page_abstract.pdf`](paper/one_page_abstract.pdf)
+- **Paper:** [`paper/Research_Islombek_Turdiyev_v19.pdf`](paper/Research_Islombek_Turdiyev_v19.pdf) · one-page summary: [`paper/one_page_abstract.pdf`](paper/one_page_abstract.pdf)
 - **Model weights:** [IslombekT/uzbek-gpt-103m](https://huggingface.co/IslombekT/uzbek-gpt-103m)
 - **Tokenizer:** [IslombekT/uzbek-bpe-16k](https://huggingface.co/IslombekT/uzbek-bpe-16k) (16,384-token byte-level BPE)
 
@@ -37,7 +37,7 @@ Language models split Uzbek into far more tokens than English, which makes them 
 | `train.py` | Pretraining loop: bf16, gradient accumulation, cosine LR, gradient clipping, `torch.compile`, checkpointing. |
 | `generate.py` | Loads a checkpoint (`.pt` or `.safetensors`) and samples Uzbek text. |
 | `experiments/` | Every evaluation, the audit of the evaluation, and the alphabet-reform study. See [`experiments/README.md`](experiments/README.md). |
-| `paper/` | The paper and the one-page summary. |
+| `paper/` | The paper (v19; v18 is the previous version) and the one-page summary. |
 
 ## Architecture and training
 
@@ -46,7 +46,7 @@ Language models split Uzbek into far more tokens than English, which makes them 
 | Layers / width / heads | 12 / 768 / 12 |
 | Vocabulary / context | 16,384 / 1,024 |
 | Parameters | 103.06M |
-| Data | FineWeb-2 `uzn_Latn`: ~1.23M documents → ~1.06B tokens (955M train / 106M val) |
+| Data | FineWeb-2 `uzn_Latn`: ~1.23M documents (1,233,463) → ~1.06B tokens (955M train / 106M val) |
 | Optimizer | AdamW (0.9, 0.95; weight decay 0.1), 400 warmup steps, cosine 3e-4 → 3e-5 |
 | Batch | 192 sequences × 1,024 tokens (~197K tokens/step), 9,700 steps (~2 epochs) |
 | Hardware / time / cost | 1× RTX 4090, ~3.4 hours, ~$3.60 |
@@ -66,7 +66,7 @@ The test set is 474 validation documents that share no 24-token passage with the
 | **uzbek-gpt-103m** (from scratch) | 0.10B | **1.038** | — |
 | mGPT-1.3B + QLoRA (1M Uzbek tokens) | 1.3B | 1.077 | +0.039 [0.031, 0.049] |
 | mGPT-1.3B, zero-shot | 1.3B | 1.080 | +0.042 [0.034, 0.051] |
-| Qwen3-1.7B-Base, zero-shot | 1.72B | 1.532 | +0.494 [0.470, 0.516] |
+| Qwen3-1.7B-Base, zero-shot | 1.72B | 1.532 | +0.493 [0.470, 0.516] |
 | Qwen3-0.6B-Base, zero-shot | 0.60B | 1.905 | +0.867 [0.840, 0.894] |
 | Qwen2.5-1.5B, zero-shot | 1.54B | 1.948 | +0.909 [0.883, 0.935] |
 | Qwen2.5-0.5B, zero-shot | 0.49B | 2.357 | +1.319 [1.289, 1.347] |
@@ -130,11 +130,11 @@ Earlier versions of this README reported 1.105 bits/byte and claimed the whole a
 3. **The test text was in my tokenizer's spelling.** `val.bin` stores text after my tokenizer's apostrophe normalization, which favoured my model. Fixed by recovering the original web text of all 474 documents from FineWeb-2 (exact match) and re-scoring every model on it.
 4. **The first tokenizer ablation didn't run as described.** Its data cap counted words instead of tokens, so it read the whole corpus, including the validation documents the test set comes from; and it stopped at step 10,000 of 18,693, before its learning rate decayed. It scored 1.048, which made the tokenizer look responsible for a quarter of the advantage. Retrained from scratch on exactly my model's training documents (verified against `train.bin`, 0 of 16 test passages in its data), it scores 1.031.
 
-Running the corrected code on the old test set reproduces the old numbers exactly (1.1050 / 1.1628 / 1.1579), so every change can be checked. Earlier versions also resampled the 2,058 scoring spans one by one; the intervals above resample whole documents instead, because spans from one document are correlated. That makes them up to about three times wider, and every difference still excludes zero ([`09_document_bootstrap.py`](experiments/audit-2026-09/09_document_bootstrap.py)). The tokenizer's share of the quality advantage fell from "all of it" to none; the corrected numbers are the ones above. If you evaluate a model on web data, check your test set against your training data, against how the text is really written, and check that each experiment actually ran the way you describe it.
+Running the corrected code on the old test set gives 1.1078 / 1.1653 / 1.1604, within 0.003 of the old numbers (1.1050 / 1.1628 / 1.1579); the old code divided by the byte count of the whole file instead of the bytes it scored ([`experiments/superseded/`](experiments/superseded/)). So every change can be checked. Earlier versions also resampled the 2,058 scoring spans one by one; the intervals above resample whole documents instead, because spans from one document are correlated. That makes them up to about three times wider, and every difference still excludes zero ([`09_document_bootstrap.py`](experiments/audit-2026-09/09_document_bootstrap.py)). The tokenizer's share of the quality advantage fell from "all of it" to none; the corrected numbers are the ones above. If you evaluate a model on web data, check your test set against your training data, against how the text is really written, and check that each experiment actually ran the way you describe it.
 
 ## Limitations
 
-A small base model: fluent Uzbek, but not a chat model, not factually reliable, and it can repeat without a repetition penalty. Latin-script Uzbek only. Evaluation is intrinsic (bits-per-byte) with no downstream tasks. One training run per model, so the small (0.005–0.007) differences between my model and the ablation haven't been checked across seeds. The ablation matched training data, not compute. The tokenizer's normalization misses the left quote `‘`, the most common way people type the mark in *oʻ* (about 34% of cases). The test set keeps only non-duplicated documents, so it leans away from boilerplate.
+A small base model: fluent Uzbek, but not a chat model, not factually reliable, and it can repeat without a repetition penalty. Latin-script Uzbek only. Evaluation is intrinsic (bits-per-byte) with no downstream tasks. One training run per model, so the small (0.005–0.007) differences between my model and the ablation haven't been checked across seeds. The ablation matched training data, not compute. The tokenizer's normalization misses the left quote `‘`, the most common way people type the mark in *oʻ* in a 3,000-document web sample (34%) and 19% of the marks in the test documents; normalizing it too would save 2.3% of tokens on the test documents ([`left_quote_check.py`](experiments/audit-2026-09/left_quote_check.py)). The test set keeps only non-duplicated documents, so it leans away from boilerplate.
 
 ## Acknowledgements
 

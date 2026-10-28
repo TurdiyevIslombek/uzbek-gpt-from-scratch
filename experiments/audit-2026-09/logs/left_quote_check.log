@@ -1,0 +1,7 @@
+# Console output of left_quote_check.py (CPU, tokenizer.json from IslombekT/uzbek-bpe-16k)
+
+documents 474 | words 200,818
+marks after o/g: 22,598  U+0027 ' 70.1%, U+2018 ‘ 18.7%, U+2019 ’ 5.6%, U+02BB ʻ 4.7%, U+0060 ` 0.7%, U+02BC ʼ 0.2%
+tokens as published:              351,208  (1.7489 per word)
+tokens if ‘ were normalized too:  343,239  (1.7092 per word)
+saving: 2.27% of tokens

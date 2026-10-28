@@ -1,0 +1,82 @@
+# Excerpt: the end of the console output of the last `ablation-2-train` session
+# (python 08k.py train, Kaggle, fp16, 2 x T4), copied from the notebook log with
+# Kaggle's timestamp columns removed. Earlier sessions' logs were not kept.
+#
+# Speed: about 11.0 s per step on the two GPUs. 16,822 steps x ~10.96 s = about
+# 184,000 s, i.e. about 51 hours of training spread over several sessions.
+#
+# The 403 error at the end is the background upload of the final checkpoint to the
+# private work repository on Hugging Face, which had reached its storage limit.
+# Training itself had finished; the final checkpoint was taken from this notebook's
+# output by `ablation-3-score`, which confirms "checkpoint step 16,821 of 16,821 ->
+# COMPLETE" (see 08k_ablation_score.log). The last line ("Training is not finished
+# yet") was printed after the completion message and does not describe the result.
+
+step 16,550/16,822 | loss 1.7432 | lr 3.02e-05 | 11.00s/step | this session 4.79h | about 1 more session(s)
+step 16,600/16,822 | loss 1.7523 | lr 3.01e-05 | 10.96s/step | this session 4.95h | about 1 more session(s)
+step 16,650/16,822 | loss 1.7557 | lr 3.01e-05 | 10.96s/step | this session 5.10h | about 1 more session(s)
+step 16,700/16,822 | loss 1.7613 | lr 3.00e-05 | 10.95s/step | this session 5.25h | about 1 more session(s)
+step 16,750/16,822 | loss 1.7556 | lr 3.00e-05 | 10.96s/step | this session 5.40h | about 1 more session(s)
+step 16,800/16,822 | loss 1.7561 | lr 3.00e-05 | 10.96s/step | this session 5.55h | about 1 more session(s)
+step 16,821/16,822 | loss 1.7442 | lr 3.00e-05 | 10.98s/step | this session 5.62h | about 0 more session(s)
+Exception in thread Thread-6 (<lambda>):
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_http.py", line 761, in hf_raise_for_status
+    response.raise_for_status()
+  File "/usr/local/lib/python3.12/dist-packages/httpx/_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Client error '403 Forbidden' for url 'https://huggingface.co/IslombekT/uzbek-ablation-clean-work.git/info/lfs/objects/batch'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.12/threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+  File "/kaggle/working/08k.py", line 322, in <lambda>
+    th = threading.Thread(target=lambda: api.upload_file(
+                                         ^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/hf_api.py", line 2062, in _inner
+    return fn(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/hf_api.py", line 5365, in upload_file
+    return self.create_commit(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/hf_api.py", line 2062, in _inner
+    return fn(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/hf_api.py", line 4920, in create_commit
+    self.preupload_lfs_files(
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/hf_api.py", line 5192, in preupload_lfs_files
+    _upload_files(**upload_kwargs, num_threads=num_threads, create_pr=create_pr)  # type: ignore [arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/_commit_api.py", line 391, in _upload_files
+    actions_chunk, errors_chunk, chosen_transfer = post_lfs_batch_info(
+                                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/lfs.py", line 166, in post_lfs_batch_info
+    hf_raise_for_status(resp)
+  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_http.py", line 849, in hf_raise_for_status
+    raise _format(HfHubHTTPError, message, response) from e
+huggingface_hub.errors.HfHubHTTPError: (Request ID: Root=1-6ac0d4fc-7d2d83d206af9f2428a8fbb1;729e25bd-7873-4f00-a8d3-d1625d88bdee)
+
+403 Forbidden: Private repository storage limit reached, please upgrade your plan to increase your private storage limit.
+Cannot access content at: https://huggingface.co/IslombekT/uzbek-ablation-clean-work.git/info/lfs/objects/batch.
+Make sure your token has the correct permissions.
+TRAINING COMPLETE — run the score cell (it can run right now in this session).
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+Training is not finished yet — run the train cell again in a new session.

@@ -13,7 +13,16 @@ These are the original evaluation scripts. They produced the figures in the firs
 
 **Do not use these numbers.** The held-out set these scripts evaluate on (`uz_heldout.txt`) is the opening of `train.bin`, so the from-scratch model had trained on it. The QLoRA adaptation pool was also drawn from the start of the same stream, so the fine-tuned baseline had seen much of it too. The bootstrap resampled the two models independently rather than in pairs.
 
-The scripts are kept unchanged so the correction can be checked. Re-scoring `uz_heldout.txt` with the new evaluation code reproduces 1.1050, 1.1628 and 1.1579 exactly.
+The scripts are kept unchanged so the correction can be checked. Re-scoring `uz_heldout.txt` with the new evaluation code gives 1.1078, 1.1653 and 1.1604, within 0.003 of the reported 1.1050, 1.1628 and 1.1579. The difference is the denominator: the original notebook divided the total bits by the byte count of the whole file (1,697,029 bytes), including a final partial chunk it never scored; the new code divides by the bytes it actually scored.
+
+`perchunk_uzbekgpt.npz` and `perchunk_mgpt_base.npz` are the original per-chunk scores (bits and bytes for each scored chunk). `check_old_denominator.py` shows both calculations from them:
+
+```
+uzbekgpt   chunks   755 | scored bytes 1,692,688 | bits / scored bytes = 1.1078 | bits / whole-file bytes = 1.1050 | reported 1.105
+mgpt_base  chunks  1285 | scored bytes 1,693,361 | bits / scored bytes = 1.1653 | bits / whole-file bytes = 1.1627 | reported 1.1628
+```
+
+So the new code reproduces the original per-chunk scores; only the final division differs. The per-chunk scores of the first ablation run were not kept.
 
 ## The first tokenizer ablation
 

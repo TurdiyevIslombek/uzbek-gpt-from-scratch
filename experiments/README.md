@@ -17,6 +17,7 @@ experiments/
 │   ├── ablation-3-score.ipynb    ┘
 │   ├── 09_document_bootstrap.py  ← confidence intervals, resampling documents (CPU, seconds)
 │   ├── build_heldout.py          ← rebuilds the 474-document test set anywhere
+│   ├── left_quote_check.py       ← cost of the tokenizer's left-quote gap (CPU, seconds)
 │   ├── audit_A_contamination_eval_ablation.ipynb
 │   ├── audit_B_adaptation_sweep.ipynb
 │   ├── logs/                     ← console output of every run
@@ -38,6 +39,7 @@ experiments/
 | `07_final_checks.py` | Current models? Documented fertility sample? What does the model write? | Qwen much worse; Table 1 on the test set; samples |
 | `08k_retrain_ablation_kaggle.py` | Does the tokenizer matter when the training documents are exactly the same? | Not for quality: ablation 1.0310 vs mine 1.0380 (web), 1.0330 vs 1.0281 (normalized) |
 | `09_document_bootstrap.py` | Are the intervals too narrow because spans from one document are correlated? | Resampling documents widens them 1.3–2.8×; every difference still excludes zero |
+| `left_quote_check.py` | How much does the tokenizer's one known gap (the left quote `‘`) cost? | 18.7% of the marks in the test documents; normalizing it too would save 2.3% of tokens (1.749 → 1.709 per word) |
 
 Runs 02–04 score the test set in my tokenizer's normalized spelling; 05–08 use the original web spelling, which is what the paper reports. Both are kept so the effect of spelling can be seen.
 
@@ -65,7 +67,7 @@ Same documents in normalized spelling: 1.0281 (mine), 1.0330 (ablation, +0.0049 
 
 - **Deterministic results reproduce exactly** across sessions (from-scratch, zero-shot mGPT, ablation, Qwen).
 - **QLoRA training is not bit-for-bit deterministic.** Four sessions of the 1M configuration gave 1.0764–1.0767 on normalized text.
-- **The correction is checkable.** Running the corrected code on the original test set reproduces the originally reported 1.1050 / 1.1628 / 1.1579.
+- **The correction is checkable.** Running the corrected code on the original test set gives 1.1078 / 1.1653 / 1.1604, within 0.003 of the originally reported 1.1050 / 1.1628 / 1.1579. The original code divided by the byte count of the whole file rather than the bytes it scored; `superseded/check_old_denominator.py` shows this from the original per-chunk scores.
 - **`build_heldout.py`** rebuilds the test set from `train.bin` / `val.bin` and refuses to continue unless it matches exactly (474 documents, 200,818 words, 1,646,167 bytes).
 - **`results/uz_heldout_dedup_raw.jsonl`** holds the recovered web text; normalizing it with `uzbek-bpe-16k` reproduces `uz_heldout_dedup.jsonl` character for character.
 - **Seed 20260913** is used everywhere.
@@ -80,7 +82,7 @@ Everything runs on a free Kaggle GPU (T4) with internet on.
 | dataset `uzbek-fineweb2-tokens-16k` | 04 (notebook B) |
 | output of the 05 notebook (+ output of notebook B, to reuse adapters) | 06 |
 | output of the 05 notebook | 07 |
-| dataset `uzbek-fineweb2-tokens-16k`, output of the 05 notebook, Kaggle secret `HF_TOKEN` | 08k: `ablation-1-prepare` (CPU), then `ablation-2-train` (GPU T4 ×2, repeat until it says `TRAINING COMPLETE`, about 51 hours in total on the two GPUs), then `ablation-3-score` with the train notebook's output attached |
+| dataset `uzbek-fineweb2-tokens-16k`, output of the 05 notebook, Kaggle secret `HF_TOKEN` | 08k: `ablation-1-prepare` (CPU), then `ablation-2-train` (GPU T4 ×2, repeat until it says `TRAINING COMPLETE`, about 51 hours in total on the two GPUs at the logged ~11 s per step; see `logs/08k_ablation_train_tail.log`), then `ablation-3-score` with the train notebook's output attached |
 
 Kaggle gives two T4s; scripts 01–07 pin one, because a 4-bit model can't be split across GPUs. 08k trains on both with `torchrun` and saves checkpoints to a private Hugging Face repo between sessions; it uses fp16 with loss scaling, since T4s have no bf16.
 
@@ -94,7 +96,9 @@ Kaggle gives two T4s; scripts 01–07 pin one, because a 4-bit model can't be sp
 | `uz_heldout_dedup.jsonl`, `uz_heldout_dedup_raw.jsonl` | The test set, normalized and web spelling | 05 |
 | `sweep_raw_results.json`, `sweep_*.csv`, `figure2_final.png` | Final Figure 2 | 06 |
 | `final_checks.json`, `table1_web.json`, `samples.json`, `modern_*_raw.csv` | Table 1, current models, samples | 07 |
-| `retrain_results.json`, `rawcheck_ablation_clean_raw.csv`, `rawcheck_ablation_clean_clean.csv`, `ablation_clean_config.json` | Clean ablation, both spellings, per-span scores | 08 |
+| `retrain_results.json`, `rawcheck_ablation_clean_raw.csv`, `rawcheck_ablation_clean_clean.csv`, `ablation_clean_config.json` | Clean ablation, both spellings, per-span scores (`_clean_raw` = web spelling, `_clean_clean` = normalized spelling) | 08 |
 | `document_bootstrap.json` | Document-level intervals for every reported gap | 09 |
+
+**A note on the file names.** In the `rawcheck_*` and `sweep_*` files, a final `_clean` means the normalized spelling and `_raw` the web spelling. So `rawcheck_ablation_clean.csv` (1.0492) and `rawcheck_ablation_raw.csv` (1.0477) are the *first, flawed* ablation from run 05, while `rawcheck_ablation_clean_clean.csv` (1.0330) and `rawcheck_ablation_clean_raw.csv` (1.0310) are the *clean retrain* from run 08, normalized and web spelling.
 
 The test-set text comes from FineWeb-2 and is shared under its ODC-By 1.0 licence.
